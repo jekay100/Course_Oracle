@@ -1,0 +1,83 @@
+多个表的查询JOIN on
+内连接：
+ 查找叫smith的部门名称(先找名字再职员表里找到部门号，然后再查到部门在部门表里面)可以通过两个表的关联来查找 
+ 
+	select t1.enmae,t2.dname
+	from t1 join t2 
+	on(条件，不是where是on)t1.c1 = t2.c2(t1表的某列等于t2的某列)
+表间关系：一对一的关系，夫妻关系
+		 一对多的关系，这个是最常见的，一个部门有多个职员，一个职员属于一个部门
+		 多对多的关系，一个学生可以选 多门课，	一门课可以被 多个学生选
+	一对多的关系用外键来体现通过外键来关联起来	 
+	部门的编码是部门唯一的标识叫主键（pk）primary key;
+	职员的唯一标识也叫主键
+	职员里面的部门号参考那部门编号，（职员表里的部门号要么必须是部门表里的数，可以没有，一但部门表里的数被参照了，部门表里的编号不能变，为了保证数据的完整）叫外键（fk）frogein key
+	外键用来表示表间关系（最主要的是一对多的关系）
+	主键和外键都 叫约束条件用来保证数据的完整性
+	select e.enmae , e.dname from emp e join dept e
+	on e.deptno = e.deptno;
+	where e.ename = 'smith'
+	这种关联叫参照
+dept:主键，主表是被参照的也叫父表
+emp:外键参照主表，从表，
+连接的原理 ，t1表和t2表做内连接连接条件为on t1.c1 = t2.c2
+ 我们把t1表做为驱动表，t2做为匹配表join前面的是驱动表
+ 遍历t2表如果相等就说明匹配上了如果为空也遍历t2,  也相当于遍历了t1
+ 结果有三种情况，t1里面的纪录在t2里面没有匹配的，结果集里面没有这个因为对方找不到匹配的
+                t1里面的一条纪录与t2表有一条匹配，t1里面的记录和t2里面的记录形成一个记录放在结果集里面
+                t1里面的纪录在t2表里有多条匹配，会形成多个组合弄在集合里
+select count(*) from emp
+insert int cmp(cmpno,cname) values(1111, 'chris');
+  两张表有描述共同属性的列（父表的主键，和子表的外键）    
+   select e.ename, e.sal, d.dname
+   from emp e join dept d         
+   on e.deptno =d.deptno
+   and e.job = 'manager'(这里面的and是什么意思 了)
+ 内连接的等值连接，我们接下来看非等值连接
+ 	薪水落在范围内，between and
+ 	select e.enmae e.sal s.grade
+ 	from empe e join salgrade s
+ 	on e.sal between s.losal and s.hisal  （驱动表匹配参照表）只要驱动表里面的数据落在了那个范围内
+第三种内连接叫自连接
+同一表的数据：一个结构叫自关连
+emp表有主键，经理（一个人如果想成为别人的经理，要有职工编码，可以被下属参考），这种情况叫做自关联
+我们给这个表起别名来虚拟成两个表
+select worker.ename manager.ename
+from emp worker(普通职员) join emp manager
+on worker.mgr  = mmanager.empon;(这个有意思)
+内连接：如果没有匹配结果，就不会出现在最终结果集，king没有上司所以不出现
+任何一张表里的记录一定在另一张表里找见匹配的记录，否则不出现在结果集里面
+
+
+外连接：	
+select t1.c1, t2.c2
+from t1[left|rigth|full outer join] join t2
+on t1.c1 = t2.c2;	
+内连接达不到，不符全内连接的让外连接找到（比如没有上司的人进不去）
+select e.ename d.dname
+from emp e left outer join dept d
+on e.deptno = d.depton;
+他们不能换位置了，t1必须是驱动表，如果找到到，在t2表里面模拟一个空的放在结果集里面
+这个时候以驱动表为主外连接相当于内连接+上驱动表里面没有匹配上的全列出来（驱动表为主全列出来）
+t1 right outer join t2这个是等价的t2 left outer join t1;
+t1 full outer t2
+select  e.ename, d.dname
+from emp e full outer join dept d 
+on e.deptno = d.depton
+自连接的外连接
+	select worker.ename, manager.ename
+	from emp worker left outer join emp manager
+	on workder.mgr = manager.empno
+	哪些员工不是下属
+	select worker.ename, manager.ename
+	from emp worker right outer join emp manager
+	on workder.mgr = manager.empno
+	where worker.emp is null;
+ 哪个部门没有smith
+ select d.dname
+ from emp eright outer join dept d
+ on e.deptno = d.deptno
+ and e.ename = 'smith'--先要过滤一下行到smith的然后再关联，最后在关联结果集里面做过滤
+ where e.empno is null 	
+ 用ename = 'smith'做emp的过滤表
+ 外连接，dept做驱动表，最后过江

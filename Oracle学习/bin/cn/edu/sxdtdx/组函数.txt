@@ -1,0 +1,104 @@
+select count(*) from emp;//多条函数出来一条，
+多条记录参与出来少于那个记录的函数 
+组函数：
+max/min/avg/sun/count
+select avg(sal) from emp;
+select sum(sal) from emp;
+select max(sal) from emp;
+组函数忽略空值
+sum(comm)/count(*) from emp;
+select avg(nvl(comm,0)) from emp;
+组函数嵌套单行函数
+计算员工分布在几个部门
+select distinct deptno from emp;
+select count(distinct deptno) from emp;
+查每个部门的工资：
+select deptno, sum(sal)
+from emp
+group by deptno;(按照部门分组查出其所有的工资)
+
+按职位分组查出平均工资
+select job, avg(sal)
+from emp
+group by job;
+分组函数的要求：所有非组函数的列必须出现group by 后面，group by后面的列不必出现在select但是信息不完整，所以说select后面的列与group by后面的列一致
+
+获得每个部门每个职位的平均工资
+select dept, job ,avg(sal)
+from emp
+group by dept job
+order by dept job; 
+单行函数相当于Java中的API
+单函数 ：
+字符函数/数字函数/日期函数/转化函数/通用函数
+upper/lower/initcap/concat/length/substr/lpad/rpad/replace/trim
+round/trunc/mod
+months_between/add_months/newx_day(下周四是几号)/last_day
+to_char/to_number/to_date
+nvl/coalesce(返回第一个非空表达式)/decode
+组函数：
+max/min/avg/sum/count(组函数默认忽略空值的说以要小心)
+group by按某个分组
+select count(*)from table//这个是刚开始一般建议查询，因为不知道他的数量，非常大的数据可以要1个小时也执行不完
+关联查询：
+内连接：t1 join t2 on t1.c1 = t2.c2
+select ename, job, decode(job, 'PRESIDENT','A',
+								'MANAGER','B',
+								'ANALYST','C')
+from emp;	
+select ename, round(month_beteew(sysdate, hire)) months 
+from emp;	
+select cust_id, cname, nvl(to_char(birthda)这个转化成默认的格式, 'not available'), nvl(accout,'no accout')nvl格式要一样记住了
+
+from custormer;
+SELECT ename tochar(sal, 'L9999.00');
+FROM emp
+WHERE sal > 2000
+ORDER BY sal desc;
+
+内连接
+select e.ename, e,deptno, d.dname
+from emp e join dept d
+on e.deptno = d.deptno
+
+自连接
+select worker.enmae "employees",
+		worker.empno "Emp#" 
+		manager.ename "manager"
+		manager.empno "Mgr#"
+from emp worker join emp manager
+on worker.mgr = manager.empno;
+
+select e.deptno, e.ename, d.loc
+from emp e join dept d
+on e.deptno = d.deptno;
+他的上司是谁
+select manager.ename
+from emp worker join emp manager
+on worker.mar = manager.empno
+and worker.ename = 'smith';
+
+过滤分组结果
+select 
+from 
+group by
+having
+order by
+
+select deptno, avg(sal)
+from emp
+where hiredate > '01-AUG-1980';//先过滤然后分组，再过滤，呵呵 
+group by deptno;进一步过滤分组以后的过滤不能用where而是用having ,
+having avg(sal) > 2000;
+
+select deptno count(*)
+from emp
+group by deptno
+having count(*) >= 5;
+order by count(*);//这个放在最后
+
+
+
+
+
+						

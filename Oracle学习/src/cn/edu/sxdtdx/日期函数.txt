@@ -1,0 +1,58 @@
+select 列名，表达式，函数，distinct, 别名
+from 表名
+where 条件表达式，between.. and.., like,in 
+order by 列名，列别名，表达式，
+desc,asc正序
+字符函数
+数字函数
+日期函数:sysdate
+转换函数:to_char
+通用函数：nvl
+months_between(sysdate,hiredate)隔了多少个月
+  eg.select enmae, months_between(sysdate, hiredate) hiredate from emp;
+哪个减号表示差的多少天
+add_months(sysdate, 6) from dual;  加多少月的
+ eg.select add_months(sysdate, 6) from dual;
+ eg. select sysdate +6 from dual;加了多少个的结果 
+ eg.select add_months(sysdate, -6) from dual;
+next_day();下一个周几，不是下一周的意思 
+ eg.select next_day(sysdate,5) from dual;  这个是下一个周4，因为周日是1
+ eg.select next_day(sysdate,'FER') from dual;下一个周五的意思 ，中文环境这个不认识要成星期五
+last_day(sysdate) from dual;计算所在月的最后一天，交手机费用的就是这个计算最后一天
+转换函数一共有3个：to_char/to_date/to_Number,同数字到日期不能转化
+数字转字符，日期到字符全是to_char
+ eg.select to_number('12')*12 from dual;
+ eg.select to_number('$12,345.34','$99,999.99')
+9代表数字位，
+0代表数字位，如果超过实际长度强制显示0， 0表示如果位数不足的话显示成0，一般有在小数位上
+$美元货币符号
+L本地货币符号，
+.小数点
+，每千位显示一个逗号
+ select to_number('$12,345.67','$0,000.00') from dual;
+ to_number做数学操作select to_number('$12,345.67','$99,999.99')*0.1 from dual;
+  select to_number('ab','xx') from dual;(ab是a+b，这个结果格式了16进制)
+  select to_number('ff','xx') from dual;//255这个用的比较少
+ select to_char(12345.67,'@999,999.00')from dual，
+to_date
+  eg.select to_date('2010-10-10','yyyy-mm-dd') from dual;
+  insert into emp(empno,ename,hiredate) values(1234, 'zhan',to_date('2011-2-12','yyyy-mm-dd'))这里用到了字符数据所以转一下
+ 通用函数：nvl空值处理函数，为空的话转化成指定的数据
+ 	eg.select ename, sal, comm from emp ;
+ 	   select ename,sal,comm,nvl(comm, 100) bonus from emp; 
+      select enmae nvl(job, 'not job yet') job from emp;
+      select ename nvl(comm sysdate) comm from emp;
+      insert into emp(empno, ename) values(1234,'dawson);其他的默认是空的
+      select ename, nvl(hiredate to_date('2011-1-12,'yyyy-mm-dd')) hiredate from emp;
+      为什么光标停在那里了因为还有其他用户在此时操作表了，
+      其他人按commit;就可以释放 了;rollback;这个输错了回滚
+ coalesce(，，，，)这个返回第一个非空值    最后一个值 是常量
+ select enmae, sal, comm, coalesce(comm, sal, 100) from emp;
+ decode()相当于if语句
+ select ename, job, sal decode(job, 'SALESMAN',1.05 *sal,
+ 									 'ANALYST', 1.1 * sal,sal(最后一个也是相当于else))bonus from emp; 
+ 	函数是oracle里面有的函数名称可能不一样
+ 									 
+ 
+      
+ 

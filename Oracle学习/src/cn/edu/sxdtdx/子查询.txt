@@ -1,0 +1,206 @@
+子查询就是一条sql语句嵌套另一个查询
+谁的工资比smith的工资高，不关心smith的工资，分成两部先查smith的工资，然后比较 
+select sal from emp where ename = 'smith';
+select ename from emp where sal > 3000;
+上面两条总结成一条叫子查询
+select ename from emp
+where sal > (select sal from emp where enmae= 'smith');
+谁的工资是最低的，但是我不关心最低工资是多少了，是不是
+select ename,sal
+from emp
+where sal= (select min(sal) from emp);,一般把子查询放在where里面
+如果子查询返回一个数据，可以使用=，>,<等 单行比较运算符
+如果子查询返回多行数据，必须使用多行比较运算符：in
+select ename, job
+from emp
+where deptno in (select deptno from where job = 'clerk');
+如果子查询里面有null值,且使用not in 运算符，则无结果 
+反回一个部门的工资最多的那个人
+select deptno,ename,sal
+from emp
+where(deptno, sal) in
+(select deptno, max(sal) from emp group by deptno);
+where后面的与这个匹配
+
+比部门20的平均工资高的部门，就是按照部分分组计算出平均工资对分组进一步过滤
+select deptno, avg(sal)
+from emp
+group by deptno
+having avg(sal) > (select avg(sal) from emp where deptno = 20);
+
+上面的是非关联子查询，下面的是关联子查询
+子查询里面的表在主查询里面用到了这个就关联子查询
+哪些员工的工资比本部门的工资高了（他只能和本部门比较）
+select ename, sal,deptno
+from emp outer where sal >(select avg(sal) from emp where depto = outer.depto);
+这个时候子查询不是执行一次了主查询得到一条记录，子查询根据外部的进行
+关联子查询采用的是循环（loop）的方式，执行如下：
+1. （遍历主查询的每一条然后找到子查询里面的平均薪水，一直把主表遍历完了，然后出现在结果集里面）
+
+查询有下属的员工
+select ename, job, deptno
+from emp outer
+where exists(select 'x' from emp where mgr = outer.empnum);
+exists是个运算符返回的是不是true，exists是判断是否的
+主表中的数据与子表中的数据进行比较，看看有没有与之相关的
+哪些部门没有员工
+select deptno, dname from dept outer where not exists(select 'x' from emp where deptno = outer.deptno);
+exists与外表有关太大了就不用去做了，
+in先执行子查询，
+
+
+集合操作（set）：
+结果集的取非取反，
+union（去掉重复的）/union all（不去重的可能有两个2）并集
+intersect交集
+minus差集
+同构：数据类型相等和个数必须相等
+select ename , 'boss'
+from emp 
+where mgr is null;
+select job from emp where deptno = 10;
+union
+select job from emp where  deptno = 20;
+
+约束条件：
+保证数据的安全与科学保证数据的完整性（如年龄是-30，这个不科学）
+
+主键：primary key,（唯一+非空）
+外键：foreign key,描述两个表之间的关系
+唯一：unique(微博名要唯一但是可以为空有两个为空也是可以的空不等于空)
+非空：not null(密码不能空)
+检查：check:年龄（唯一，可以是空的）
+DDL现在开始定义语言，创建数据表：
+create table[schema.模式，openlab所有的表就是他的财产把他放在袋子里这个袋子就是模式，这个可以是省的，默认是我的财产]
+必须有建表的权限，必须有空间，这个openlab必须给我们空间，这个已经具备
+
+create table student(
+id number primary key, 
+name varchar2(20),
+email char(40),
+registtime date default sysdate);
+Java程序不能有#号（变量但是oracle是可以的）
+---新增记录
+insert into student(id, name, email, registtime) values(1,'peter','perter@123.com',sysdate);
+insert into student values(2,'chris','chris@1.com', sysdate);
+如果插入的是全部字段列名可以省略
+number(3,-3); 1234, 1000;
+number(2,4); 
+一次增加多条：
+insert into student(id, name) 没有as
+select empno, ename from emp
+where deptno = 10;
+在sqlplus中调整格式：以列宽为例，
+将指定列名调整为20个字符长度
+特别强调：sqlplus命令，非sql语句
+column 列名 format a20(字符列名)（数字的话就是9999就是显示4位）
+col 列名 format a20;
+上面的全可以用简写
+
+每张表都应该创建主键，（表级，和列级，全定义完了再定义叫表级）
+创建约束条件：
+--创建主键约束：
+如果创建的约束条件没有命名，由系统自动命名的
+建表时创建，可以建立在列级，或表级
+在建表后创建，建立在表级
+例：
+create table student(
+id number primary key, 这个约束条件没有命名系统自动给命名了
+name varchar2(20),
+email char(40),
+registtime date default sysdate);
+用来查约束条件的名字
+select constraint_name, constraint_type
+from user_constraints(这个相当于个数据字典用来描述数据库信息的表，只能看不能改)；
+where table_name = 'STUDENT';//这个是大写必须是大写的到了里面默认变成大写了
+
+创建主键约束，自己命名，建立在表级
+create table student1(id number, name varchar2(20),(把所有的都 写完然后写关键字，表级的)
+constraint stu1_id_pk（表名，列名，约束条件的类型名字） primary key（id）);
+
+建表后创建主键约束：
+CREATE TABLE student2(id NUMBER, name VARCHAR(20));
+修改表结构
+=--删除表，
+drop table sudent_ning;
+ALTER TABLE  student1 add constraint stu2_id_pk primary key(id)建立再id上);
+
+非空约束只能定义成列级给名字就加上一句
+唯一约束：
+create table student(id number primary key, name varchar2(20), 
+nickname varchar2(20),
+email char(30) unique,
+constraint stu_nickname_uk unique);
+)
+最低式资 不能低于800是个主函数的结果所以用having 这个是什么意思 
+select d.dname, d.loc count(e.sal), avg(e.sal)
+from emp join dept 
+on e.deptno  = d.deptno（上面一句和这个也是个集合再分组）
+group by d.dname, d.loc;(没有被 子函数包围的列都要写在group by里面)
+6
+select ename, hiredate
+from vemp
+where deptno = (select deptno 
+from vemp
+where lower(name) = 'scott')
+and ename <> 'scott';
+
+select empno, ename,sal
+from vemp
+where sal > (select avg(sal) from vemp);
+  
+select empno, ename
+from vemp  
+where deptno in (select deptno from vemp where lower(ename) like('%u%');
+
+select e.ename, d.dname, e.job
+from vemp e join vdept d
+on e.deptno = d.deptno
+and d.loc = 'NEW YORK';
+
+select ename, sal 
+from vemp
+where mgr = (select empno from
+ vemp where ename = 'KING');
+11
+select 
+from vemp
+where deptno = (select deptno 
+from vdept where dname = 'OPERATIONS');
+
+select 
+from vemp
+where sal
+ 
+select deptno, count(*)
+from vemp
+where sal > 1500
+group by deptno;(在分组前先过滤掉一部分)
+   
+select ename, sal
+from vemp   
+where sal >   
+select avg(sal) from vemp(写这种东西要一个一个的弄然后弄个方向 )
+
+select ename
+from vemp
+where deptno
+in
+
+(select deptno, avg(sal)
+from vemp
+groupby deptno
+having avg(sal) > 1500);
+  
+select ename,deptno,sal
+from vemp
+where (deptno, sal)
+in(select deptno, max(sal)
+from vemp
+group by deptno);  
+ 
+ select deptno, avg(sal)
+ from vemp
+ group by deptno(你写语句时把他想成几万条)
+  
+  

@@ -1,0 +1,95 @@
+alter table student drop constraint SYS_c1234;
+alter table student add constraint student_id_pk primary (id)
+建议除了not null，之外全要起名字
+constraint stu_sex_ck check(sex in ('F','M')),
+constraint stu_mid_fk foreign key(mid) references major(id));
+
+create or replace 表是不能这样做的，view是可以的
+not null加载列级约束条件的
+外键建议建立完表之后做，因为我们经常要做一
+些操作，表间关系关联顺序，初始化环境，
+脚本就是sql的命令：先连接用户先约束条件，删除序列（drop sequence **）再删除表，再建表，再建立约束条件
+创建视图，创建序列创建约束条件，增加初始数据（管理员进去有初始数据）
+.sql文本文件叫建立一个脚本，初始化工作写成个脚本 
+批处理程序，按顺序批量执行程序
+@ c:\script.sql(脚本存放目录)
+从开发环境迁移到运行环境里我们直接运行一下脚本（我们做为程序员要提交的成果）
+我们自己的软件建立在Java和DB之间
+DML操作insert /update/delete
+事务（Transaction）处理语句：commit/rollback/savepoint
+DDL:create/drop/lalter(修改表，增加约束条件)/truncate
+truncate (清除表数据，保留表结构) table student;
+删除之间要想好，这个不能rollback;立即生效
+drop table student;这个也不能rollback;
+
+数据库对象：视图/索引
+
+复杂视图：连接多个表得到的数据
+create view emp_dept
+as select e.ename, d.dname
+from emp e join dept e
+on e.deptno = d.deptno;
+怎么看要用到索引：
+这个就用到执行计划了
+squlplus命令不需要分号，离开sqlplus就没有用了
+colum name fromat a20;(这个也是sqlplus命令)
+数字到字符是个隐式转化，但是一般把他写上
+update employee set(变量大小写敏感的)
+last_name = 'Tate' where
+
+行内视图：查询语句出现在from后面，
+子查询：出现在条件中select ename, sal from emp where sal >(select sal from emp where ename = 'scott');
+
+哪些员工的工资比本部门的平均工资高
+
+select e.ename, e.deptno, e.sal
+from emp e join
+	(select deptno, avg(sal) avgsal
+	from emp grooup by(deptno)a这里面的这个a好象 是个结果值 
+	on e.deptno = a.deptno
+and e.sal>a.sal;
+上面的可以写成两句
+create view a 
+as 
+select deptno,avg(sal) avgsal from emp group by(deptno);这个视图在上面没有名，这一段脚本叫匿名视图，
+上面合并的叫做行内视图
+把查询弄成view查起来简单点
+行内视图经常用作排名和从第几列查到第几列
+--伪列，rownum（行号）,rowid(物理地址)
+select rownum, ename,sal,rowid from emp;
+上面的那两个没有定义 也有了
+只能从1开始
+5条到10天，这样不行，所以肉过去
+select ename, sal from (select ename , sal, rownum rn
+from emp ) where rn <10 and rownum > 5;
+上面的只适用于oracle
+
+排名问题， Top-N分析
+--薪水最高的三个人，成绩最低的五个人
+select ename, sal from emp order by sal desc;
+上面的全查出来添加where rownum <4;先得到了3个然后排序，这个就不是我们要的结果
+先排序再取select from （select * from emp orderby sal desc ）where rown <= 3;
+先建立了结果集，然后再从他的结果集里面取出来，这个就是行列视图
+假如有人没有奖金怎么排orderby认为null值是最大，注意了
+这个是分页问题 ，和排名问题 
+
+--序列sequence
+能产生主键值 ， （唯一值）
+creeate sequence  myseq_ning;(序列创建)
+
+怎么用了其中有两个伪列：nextval, currval
+select myseq_ning.nextval from dual;
+每次产生一个新值 
+这个序列怎么用
+create table mytemp_ning(id number primary key);
+insert into mytemp——ning(myseq_ning.nextval);给我增加的递增数据以1为启点
+insert into mytemp_ning values(myseq.nextval);
+主键自己增长我们不用管他
+在执行currval前要执行nextval,先要激活一下
+--创建序列，起点是1000，步进是10；create sequence mysequ_ning
+start with 1000
+increment by 10;每次增长多少
+select count(*) from user_sequences;
+drop sequence myseq_ning;
+最简单的是步进是1，起点是1
+

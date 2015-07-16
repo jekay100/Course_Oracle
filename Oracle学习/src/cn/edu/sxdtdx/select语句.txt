@@ -1,0 +1,116 @@
+select 语句后面可以加文字值后面要用‘’每行输出一次
+一个部门有多个员工，我希望部门出现一次
+select distinct deptno from emp;//所有职员表中不重覆的部门
+select deptno from emp;//把所有的都列了一遍
+select distinct job emp;//这个机构的职位种类
+我要查每一个部门不同的职位
+select distinct deptno, job from emp//distinct表示这个组合不同，distinct对后面的内容全有效，全是唯一一个
+distinct是数据库中的关键字，只能紧根着select 不能写在其他地方
+
+WHERE（我们只要一小部分，我们就要过滤一部分）（如我们查话费只要本月的不要其他地）
+ｗｈｅｒｅ写在ｆｒｏｍ后面可以获得不同部门的员工的信息，下面的是个绑定变量是这个方法&的方法
+select ename, detno, job from emp where deptno = &no,//在开发中我们用各种形参，所以这个就是相当于个参数，提示输入no的值
+一般where写在第二行好看
+大小写对上面的那些命令不敏感，但是对数据敏感
+select ename, job from emp where  job = 'MANAGER'字符串必须要用单引号引起来
+
+这个要注意了
+select ename , job from emp where ename = '&name'里面输入的话就不用写‘’号了
+SOL逻辑比较运算符
+= <>, !=这两个一样（表示不是）等
+SQL比较运算符
+ between low and hight（这个是个闭区间）select sal from emp where sal between 1500 and 300;
+ in在一个离散值当中，是一个集合，，这个是个或的意思，部门10或20，30的员工，select ename, job, deptno from emp where deptno in(10,20,30); 这个好象等同于
+ select ename, job, deptno from emp where depno =10 or depno =20,职位是经理或高管的select enmae, job, deptno from emp where job in('ANIYST
+', ‘MANAGER’);
+ like是个模糊比较吧与通配符有关（%表示0或多个字符，_表示任意单个字符）select ename, job from emp where ename like 'M%'(以M开头的名字)
+	select ename, job from emp where ename like(_A%);表示第二个字母是A的
+ is null（测试null用到这个符号），NUll不能等于任何值包括0， 查哪些人没有奖金，select ename,sal, comm from emp where sal is null;(这里不能用=null);
+  查询奖金不是空的select ename ,sal, job from emp where sal is not null;(否定运算符)）
+查询不是经理的员工select ename , job from emp where job <> 'salesma'
+运算符的否定属性，
+not between and ,select ename, sal from emp where sal not between 1500 and 3000（薪水不在1500到3000）;
+not in(), select ename, sal from emp where deptno not in(10,20);
+not like, select ename,sal from emp where ename not like '_S%';
+and的优先级高于or where sal>1000 and deptno =20 or depton =10,这个是部门20的人要打出薪水高于1000，部门10的人全打出来
+order by 是按什么排序（正序，倒序）一定放在整个语句的最后边
+	select ename, job from emp order by ename;(这个是按照字符去排序)
+	select ename, job from emp order by sal desc(这个是按薪水倒序)；
+	select ename, sal, depto from emp order deptno, sal desc(先按部门排序，然后按照薪水由高到低排序)
+	按日期排序的时候要出现由小及大就是90年在前面，95年再后面
+	select ename, sal, deptno from emp order by 2(按出现在select后面的第几个字段排序，这个是按照sal排序)
+SQL逻辑运算符
+AND
+OR
+NOT
+
+基本语句的格式
+select ....(列，别名，表达式)
+from ...(表名)
+where...(条件)
+order by....(排序)
+myeclipse里面有个oracle工具，可以用
+
+单行函数：在Java中叫API在数据库中就函数功能块（也就是学习API）
+单行函数(10条进去出来10条)nvl属于单行函数 
+多行函数（多条进去出来1条，比如count）
+虚表dual(Oracle特有的)测试函数是他的一个功能 怎么测试函数呢
+	select upper('Sql Course')from  dual;
+我们看一下dual，用命令desc dual;里面出现了一个DUMMY，这个dual只返回一个字段我们当前测试的	
+
+Oracle数据库的用户
+	sys数据库的老大，（使用的那些还是函数他也管了）
+	system，上面的和这个是系统内置的（这两个以DBA的身份存在是系统用户）
+	scott/tiger， 这个是数据库装上后有几个测试数据库（是个测试用户他名下有些数据表，可以用来测试）
+	openlab/open123,自己建立的
+	最上面的系统用户可以给我们创建用户
+LOWER变小写
+UPPER变大写
+INITCAP首字母大写（有什么用，职员里面有Scott不知道大小写，所以就用到大小写的问题了）select * from emp where upper(ename) = 'SCOTT'；这里面大小写要注意
+CONCAT函数不是提倡使用，连接两个字符串，我们用||，前面的那个三串联接用嵌套了
+substr(Java中有ing)select substr('helloworld',3,3)from dual;
+Java中从0开始，数据库中全是从1开始的，从三个开始再取三个
+	select ename length(ename) from emp 查长度没意思
+左补位如果不足补齐
+	select lpad('hello', 10, '*') from dual;,如果不足10位用*补全
+右补位
+	select rpad('hell', 10, '#') from dual;
+select ename, lpad(sal, 10, '$') from emp;	
+replace/ trim这个自己查
+
+数字函数
+round(四舍五入)select round(45.689, 2) from dual(小数点后有两位)
+		select round(45.689, 0)from dual;这个不太懂查一下46
+		select round(45.689,-1) from dual;表示往小数点前50；
+trunc(截取把上面的round改成)		
+mod(16,5)取余运算
+
+日期处理
+Date now = new Date();
+Calendar today = Calendar.getInstance();
+加减日期+-一个数字n= n天以后/前
+select sysdate from dual(取系统时间这个是oracle里面独有的)
+10天以后 select sysdate + 10 from dual;
+系统时间-入职时间就是入职时间
+	select ename, sysdate-hiredate hiredate from emp;算出来有小数了
+	select ename round(sysdate-hiredate) hiredate from emp;如果要查入职多少年了我们除以365
+日期格式 ：
+	yyyy表示4位年
+	mm二位月
+	dd;二位日（周日是1，）
+	hh24，用24小时制表示2位小时
+	hh12;用12小时制
+	mi,用数字表示的分钟，
+	ss,秒
+	d,表示一周内的第几天
+	day,用全拼表达的星期几（sunday）
+	month用全拼表达 的月数(march)
+	to_char转化函数将日期转化成字符串类型
+	select to_char(sysdate, 'yyyy-mm-dd hh24:mi:ss') from dual;
+	select to_char(sysdate, 'year month dd day d hh12 am') from dual;	
+	select to_cahr(sysdate, 'yyyy"年"mm"月"dd"日 "')非时期格式的用那个“”引起来
+默认的日期格式：DD-MM-RR(不是yy)假设 现在是11年：如果说99年，他会把1999和2099比较最近的，yy比较死版，直接取当前日期的前两位做为世纪	
+如果现在是1998年
+我说05，RR直接取2005;YY取的是1995
+上面的是oracle数据库里面的特征
+
